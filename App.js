@@ -1,40 +1,50 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
 
 export default function App() {
-  const data = {
-    tasks: [
-      {id: 1, name: 'Laundry', check: [false, false, false]},
-      {id: 2, name: 'Tidy Room', check: [false]}
-    ]
-  }
+  const tasks = [
+    {id: 1, name: 'Laundry', numChecks: 1},
+    {id: 2, name: 'Tidy', numChecks: 3}
+  ]
   return (
     <View style={styles.container}>
       <Text style={{alignSelf: 'center', height: 40, padding: 10}}>checklist</Text>
-      <Checklist tasklist={data.tasks} />
+      <Checklist tasklist={tasks} />
     </View>
   );
 }
 
 function Checklist(props) {
-  // props.tasklist = [{id: '', name: '', check: []}, {id: '', name: '', check: []}, ...]
-  const listItems = props.tasklist.map((task) =>
+  const listItems = props.tasklist.map((task, i) => 
     <ListItem key={task.id} task={task} />
   )
   return (<View style={styles.container}>{listItems}</View>)
 }
 
-function ListItem(props) {
-    // props.task = {id: '__', name: '____', check: [_, _, ..., _]}
-    const checkboxes = props.task.check.map((val, i) => 
-      <Text key={props.task.id + '_' + i}>{val ? 'Y' : 'N'}</Text>
-    )
-    return (
-      <View style={styles.row}>
-        <View style={{flex: 1, flexDirection: 'row'}}>{checkboxes}</View>
-        <View style={{flex: 3}}><Text>{props.task.name}</Text></View>
-      </View>
-    )
+class ListItem extends Component {
+    constructor(props) {
+      super(props)
+      this.addCheck = this.addCheck.bind(this)
+      this.state = {
+        checksDone: 0
+      }
+    }
+    addCheck() {
+      this.setState(state => ({checksDone: state.checksDone + 1}))
+    }
+    render() {
+      const checkboxes = Array(this.props.task.numChecks).fill(null).map((val, i) => 
+        <Text key={this.props.task.id + '_' + i}>{i < this.state.checksDone ? 'Y' : 'N'}</Text>
+      )
+      return (
+        <TouchableHighlight onPress={this.addCheck} underlayColor='#ddd'>
+          <View style={styles.row}>
+            <View style={{flex: 1, flexDirection: 'row'}}>{checkboxes}</View>
+            <View style={{flex: 3}}><Text>{this.props.task.name}</Text></View>
+          </View>
+        </TouchableHighlight>
+      )
+    }
 
 }
 
