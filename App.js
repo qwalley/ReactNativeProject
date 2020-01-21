@@ -25,19 +25,23 @@ class ListItem extends Component {
     constructor(props) {
       super(props)
       this.addCheck = this.addCheck.bind(this)
+      this.removeCheck = this.removeCheck.bind(this)
       this.state = {
         checksDone: 0
       }
     }
     addCheck() {
-      this.setState(state => ({checksDone: state.checksDone + 1}))
+      this.setState(state => ({checksDone: state.checksDone < this.props.task.numChecks ? state.checksDone + 1 : state.checksDone}))
+    }
+    removeCheck() {
+      this.setState(state => ({checksDone: state.checksDone > 0 ? state.checksDone - 1 : 0}))
     }
     render() {
       const checkboxes = Array(this.props.task.numChecks).fill(null).map((val, i) => 
         <Text key={this.props.task.id + '_' + i}>{i < this.state.checksDone ? 'Y' : 'N'}</Text>
       )
       return (
-        <TouchableHighlight onPress={this.addCheck} underlayColor='#ddd'>
+        <TouchableHighlight onPress={this.addCheck} onLongPress={this.removeCheck} underlayColor='#ddd'>
           <View style={styles.row}>
             <View style={{flex: 1, flexDirection: 'row'}}>{checkboxes}</View>
             <View style={{flex: 3}}><Text>{this.props.task.name}</Text></View>
