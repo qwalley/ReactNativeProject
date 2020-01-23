@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, TouchableHighlight, FlatList } from 'react-native';
 
 export default function App() {
   const tasks = [
@@ -15,10 +15,11 @@ export default function App() {
 }
 
 function Checklist(props) {
-  const listItems = props.tasklist.map((task, i) => 
-    <ListItem key={task.id} task={task} />
+  return (
+    <View style={styles.container}>
+      <FlatList data={props.tasklist} renderItem={({item}) => <ListItem task={item} />} keyExtractor={item => `${item.id}`} />
+    </View>
   )
-  return (<View style={styles.container}>{listItems}</View>)
 }
 
 class ListItem extends Component {
