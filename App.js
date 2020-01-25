@@ -15,7 +15,7 @@ export default class App extends Component {
   }
   render () {
     return (
-      <View style={styles.container}>
+      <View style={{flex: 1, backgroundColor: '#fff'}}>
         <Text style={{alignSelf: 'center', height: 40, padding: 10}}>checklist</Text>
         <Checklist type='daily' />
       </View>
@@ -49,7 +49,6 @@ class Checklist extends Component {
         [this.props.type],
         (tx, resultSet) => {
           this.setState({tasklist: resultSet.rows._array});
-          console.log(resultSet.rows._array)
         }
       );
     });
@@ -105,18 +104,24 @@ class Checklist extends Component {
   }
   render () {
     return (
-      <View style={styles.container}>
-        <IntegerInput
-          value={this.state.numChecks}
-          increase={this.increaseChecks}
-          decrease={this.decreaseChecks}
-        />
-        <TextInput 
-          style={{height: 30, borderColor: 'gray', borderWidth: 1}} 
-          onChangeText={text => {this.setState({text: text})}}
-          onSubmitEditing={this.createTask}
-          value={this.state.text}
-        />
+      <View style={{flex: 1, backgroundColor: '#fff'}}>
+        <View style={[styles.border, {margin: 5}]}>
+          <ExpandingView startOpen={false} >
+            <View style={[{padding: 5, alignSelf: 'center'}]}><Text>Add New Task</Text></View>
+            <View style={{flexDirection: 'row'}}>
+              <View style={[styles.leftAlignLabel, {flex: 1}]}><Text>Frequency</Text></View>
+              <View style={{flex: 3}}>
+                <IntegerInput value={this.state.numChecks} increase={this.increaseChecks} decrease={this.decreaseChecks} />
+              </View>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <View style={[styles.leftAlignLabel, {flex: 1}]}><Text>Name</Text></View>
+              <View style={{flex: 3}}>
+                <TextInput style={styles.TextInput} onChangeText={text => {this.setState({text: text})}} onSubmitEditing={this.createTask} value={this.state.text}/>
+              </View>
+            </View>
+          </ExpandingView>
+        </View>
         <FlatList 
           data={this.state.tasklist} 
           renderItem={({item, index}) => <ListItem task={item} addCheck={() => this.addCheck(index)} removeCheck={() => this.removeCheck(index)} />} 
@@ -127,18 +132,17 @@ class Checklist extends Component {
   }
 }
 
-function IntegerInput (props) {
-  
+function IntegerInput (props) {  
   return (
-    <View style={{height: 50, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-      <TouchableHighlight style={{flex: 3}} onPress={props.decrease} underlayColor='#ddd'>
-        <Text style={{alignSelf: 'center'}}>Down</Text>
+    <View style={[styles.IntegerInput, styles.border]}>
+      <TouchableHighlight style={[styles.IntegerInputChild, {flex: 3}]} onPress={props.decrease} underlayColor='#ddd'>
+        <Text>Down</Text>
       </TouchableHighlight>
-      <View style={{flex: 2}}>
-        <Text style={{alignSelf: 'center'}}>{props.value}</Text>
+      <View style={[styles.IntegerInputChild, styles.leftRightBorder, {flex: 2}]}>
+        <Text>{props.value}</Text>
       </View>
-      <TouchableHighlight style={{flex: 3}} onPress={props.increase} underlayColor='#ddd'>
-        <Text style={{alignSelf: 'center'}}>Up</Text>
+      <TouchableHighlight style={[styles.IntegerInputChild, {flex: 3}]} onPress={props.increase} underlayColor='#ddd'>
+        <Text>Up</Text>
       </TouchableHighlight>
     </View>
   );
@@ -150,22 +154,82 @@ function ListItem (props) {
   );
   return (
     <TouchableHighlight onPress={props.addCheck} onLongPress={props.removeCheck} underlayColor='#ddd'>
-      <View style={styles.row}>
-        <View style={{flex: 1, flexDirection: 'row'}}>{checkboxes}</View>
-        <View style={{flex: 3}}><Text>{props.task.name}</Text></View>
+      <View style={[styles.listItem, styles.border]}>
+        <View style={[styles.checks, {flex: 1}]}>
+          {checkboxes}
+        </View>
+        <View style={[styles.leftAlignLabel, {flex: 3}]}>
+          <Text>{props.task.name}</Text>
+        </View>
       </View>
     </TouchableHighlight>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  row: {
-    flexDirection: 'row',
-    height: 50,
-    padding: 10
+class ExpandingView extends Component {
+  constructor (props) {
+    super(props);
+    this.state = {
+      expanded: props.startOpen,
+    }
+    this.toggleExpand = this.toggleExpand.bind(this);
   }
+  toggleExpand () {
+    this.setState((oldstate) => ({expanded: !oldstate.expanded}));
+  }
+  render () {
+    return (
+      <TouchableHighlight onPress={this.toggleExpand} underlayColor='#fff'>
+        <View>
+          {React.Children.map(this.props.children, (child, index) => index === 0 || this.state.expanded ? child : null)}
+        </View>
+      </TouchableHighlight>
+    )
+  }
+}
+
+const styles = StyleSheet.create({
+  border: {
+    borderRadius: 2,
+    borderWidth: 0.5,
+    borderColor: 'gray',
+  },
+  leftRightBorder: {
+    borderRightWidth: 0.5,
+    borderLeftWidth: 0.5,
+    borderColor: 'gray',
+  },
+  leftAlignLabel: {
+    justifyContent: 'center',
+    padding: 5,
+  },
+  TextInput: {
+    height: 30,
+    margin: 5,
+    borderRadius: 2,
+    borderWidth: 0.5,
+    borderColor: 'gray',
+  },
+  listItem: {
+    flexDirection: 'row',
+    height: 40,
+    margin: 5,
+  },
+  checks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5,
+    borderRightWidth: 0.5,
+    borderColor: 'gray',
+  },
+  IntegerInput: {
+    height: 30,
+    flexDirection: 'row',  
+    alignItems: 'stretch',
+    margin: 5,
+  },
+  IntegerInputChild: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
