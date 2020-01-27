@@ -15,8 +15,8 @@ export default class App extends Component {
   }
   render () {
     return (
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
-        <Text style={{alignSelf: 'center', height: 40, padding: 10}}>checklist</Text>
+      <View style={{flex: 1, backgroundColor: '#333', marginTop: 10}}>
+        <Text style={{alignSelf: 'center', padding: 5, fontSize: 25, color: '#666'}}>/*   TODO   */</Text>
         <Checklist type='daily' />
       </View>
     );
@@ -150,7 +150,7 @@ function IntegerInput (props) {
 
 function ListItem (props) {
   const checkboxes = Array(props.task.numChecks).fill(null).map((val, i) => 
-    <Text key={props.task.id + '_' + i}>{i < props.task.checksDone ? 'Y' : 'N'}</Text>
+    <View key={props.task.id + '_' + i} style={[styles.checkBox, i < props.task.checksDone ? styles.checkN : styles.checkY]}></View>
   );
   return (
     <TouchableHighlight onPress={props.addCheck} onLongPress={props.removeCheck} underlayColor='#ddd'>
@@ -158,7 +158,7 @@ function ListItem (props) {
         <View style={[styles.checks, {flex: 1}]}>
           {checkboxes}
         </View>
-        <View style={[styles.leftAlignLabel, {flex: 3}]}>
+        <View style={[styles.leftAlignLabel, {flex: 4}]}>
           <Text>{props.task.name}</Text>
         </View>
       </View>
@@ -218,9 +218,10 @@ const styles = StyleSheet.create({
   checks: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 5,
+    padding: 7,
     borderRightWidth: 0.5,
     borderColor: 'gray',
+    marginLeft: -2
   },
   IntegerInput: {
     height: 30,
@@ -232,4 +233,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  checkBox : {
+    width: 10, 
+    height: 10, 
+    borderRadius: 2, 
+    borderWidth: 1, 
+    borderColor: '#555', 
+    margin: 1,
+  },
+  checkN: {
+    backgroundColor: '#6b8',
+  },
+  checkY: {
+    backgroundColor: '#fff',
+  }
 });
