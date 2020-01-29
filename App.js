@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableHighlight, FlatList, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableHighlight, FlatList, ScrollView, TextInput } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase('todoapp.db');
@@ -17,7 +17,11 @@ export default class App extends Component {
     return (
       <View style={[styles.bg, {flex: 1, paddingTop: 15}]}>
         <Text style={[styles.bg, styles.title]}>/*   TODO   */</Text>
-        <Checklist type='daily' />
+        <ScrollView horizontal={true} pagingEnabled={true} style={{flex: 1}}>
+          <Checklist type='oneoff' title='One-Off'/>
+          <Checklist type='daily' title='Daily'/>
+          <Checklist type='weekly' title='Weekly'/>
+        </ScrollView>
       </View>
     );
   }
@@ -115,14 +119,18 @@ class Checklist extends Component {
   }
   render () {
     return (
-      <View style={{flex: 1}}>
-        <AddComponentDropdown
-          frequencyInput={<IntegerInput value={this.state.numChecks} increase={this.increaseChecks} decrease={this.decreaseChecks} />}
-          nameInput={<TextInput style={[styles.TextInput, styles.yellow]} onChangeText={text => {this.setState({text: text})}} onSubmitEditing={this.createTask} value={this.state.text}/>}
-        />
-        <TouchableHighlight style={[styles.border, styles.box]} underlayColor='#555' onPress={() => {this.setState((oldState) => ({deleteToggled: !oldState.deleteToggled}))}}>
-          <Text style={styles.red}>Delete Task</Text>
-        </TouchableHighlight>
+      <View style={{width: 320}}>
+        <Text style={[styles.title, {fontSize: 16}]}>{this.props.title} Tasks</Text>
+        <View style={{flexDirection: 'row'}}>
+          <AddComponentDropdown
+            style={{flex: 1}}
+            frequencyInput={<IntegerInput value={this.state.numChecks} increase={this.increaseChecks} decrease={this.decreaseChecks} />}
+            nameInput={<TextInput style={[styles.TextInput, styles.yellow]} onChangeText={text => {this.setState({text: text})}} onSubmitEditing={this.createTask} value={this.state.text}/>}
+          />
+          <TouchableHighlight style={[styles.border, styles.box, {flex: 1}]} underlayColor='#555' onPress={() => {this.setState((oldState) => ({deleteToggled: !oldState.deleteToggled}))}}>
+            <Text style={styles.red}>Delete Task</Text>
+          </TouchableHighlight>
+        </View>
         <FlatList 
           data={this.state.tasklist} 
           renderItem={({item, index}) => <ListItem task={item} deleteToggled={this.state.deleteToggled} addCheck={() => this.addCheck(index)} removeCheck={() => this.removeCheck(index)} deleteTask={() => this.deleteTask(index)} />} 
