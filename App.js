@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableHighlight, FlatList, ScrollView, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableHighlight, FlatList, ScrollView, TextInput, Modal } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase('todoapp.db');
@@ -122,7 +122,7 @@ class Checklist extends Component {
       <View style={{width: 320}}>
         <Text style={[styles.title, {fontSize: 16}]}>{this.props.title} Tasks</Text>
         <View style={{flexDirection: 'row'}}>
-          <AddComponentDropdown
+          <AddComponentModal
             style={{flex: 1}}
             frequencyInput={<IntegerInput value={this.state.numChecks} increase={this.increaseChecks} decrease={this.decreaseChecks} />}
             nameInput={<TextInput style={[styles.TextInput, styles.yellow]} onChangeText={text => {this.setState({text: text})}} onSubmitEditing={this.createTask} value={this.state.text}/>}
@@ -205,6 +205,48 @@ function AddComponentDropdown (props) {
       </ExpandingView>
     </View>
   );
+}
+
+class AddComponentModal extends Component {
+  state = {
+    visible: false
+  };
+
+  setVisibility(arg) {
+    this.setState({visible: arg});
+  }
+
+  render () {
+    return (
+      <View style={this.props.style}>
+        <Modal animationType='fade' transparent={true} visible={this.state.visible} onRequestClose={() => this.setState({visible: false})}>
+          <View style={{backgroundColor: 'rgba(0, 0, 0, 0.3)', flex: 1}}>
+            <View style={[styles.bg, styles.border, {marginTop: 150, padding: 5, margin: 5}]}>
+              <View style={{flexDirection: 'row'}}>
+                <View style={[styles.leftAlignLabel, {flex: 1}]}><Text style={styles.grey}>Frequency</Text></View>
+                <View style={{flex: 3}}>
+                  {this.props.frequencyInput}
+                </View>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <View style={[styles.leftAlignLabel, {flex: 1}]}><Text style={styles.grey}>Name</Text></View>
+                <View style={{flex: 3}}>
+                  {this.props.nameInput}
+                </View>
+              </View>
+              <TouchableHighlight style={[{padding: 5, alignSelf: 'center'}]} onPress={() => this.setVisibility(false)}>
+                <Text style={styles.red}>Close</Text>
+              </TouchableHighlight>
+            </View>
+          </View>
+        </Modal>
+        
+        <TouchableHighlight style={[styles.border, styles.box, {flex: 1}]} onPress={() => this.setVisibility(true)} underlayColor='#555'>
+          <Text style={styles.blue}>Add New Task</Text>
+        </TouchableHighlight>
+      </View>
+    );
+  }
 }
 
 class ExpandingView extends Component {
